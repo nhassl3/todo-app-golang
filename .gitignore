@@ -1,2 +1,4 @@
 .idea
 .env
+cmd/todo-app/go_build_github_com_nhassl3_todo_app_cmd_todo_app
+commands_for_database.txt

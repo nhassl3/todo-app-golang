@@ -5,7 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nhassl3/todo-app/pkg/config"
 	"github.com/nhassl3/todo-app/pkg/http-server/handlers"
-	"github.com/nhassl3/todo-app/pkg/lib/logger/handlers/slogpretty"
+	"github.com/nhassl3/todo-app/pkg/logger/handlers/slogpretty"
 	"github.com/nhassl3/todo-app/pkg/repository"
 	"github.com/nhassl3/todo-app/pkg/service"
 	"log/slog"
@@ -22,7 +22,7 @@ const (
 
 func main() {
 	// load dot environment
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("../../.env"); err != nil {
 		slog.Error("error loading .env variables", slog.String("error", err.Error()))
 	}
 
@@ -41,11 +41,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	// http server
+	// set up the repository, service and handlers
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
-	handler := handlers.NewMainHandler(services, log)
+	handler := handlers.NewHandler(services, log)
 
+	// set up http server on localhost:8082
 	server := new(Server)
 	go func() {
 		if err := server.Run(cfg, handler.InitRoutes()); err != nil {

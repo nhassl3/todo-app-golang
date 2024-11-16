@@ -12,7 +12,7 @@ type Handler struct {
 	logger   *slog.Logger
 }
 
-func NewMainHandler(services *service.Service, logger *slog.Logger) *Handler {
+func NewHandler(services *service.Service, logger *slog.Logger) *Handler {
 	return &Handler{services: services, logger: logger}
 }
 

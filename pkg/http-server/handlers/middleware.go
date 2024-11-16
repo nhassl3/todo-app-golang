@@ -12,7 +12,7 @@ const (
 	userCtx             = "userId "
 )
 
-func (h *MainHandler) userIdentity(c *gin.Context) {
+func (h *Handler) userIdentity(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, "No authorization header")

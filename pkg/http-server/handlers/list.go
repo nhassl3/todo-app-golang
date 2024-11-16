@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (h *MainHandler) createList(c *gin.Context) {
+func (h *Handler) createList(c *gin.Context) {
 	id, err := getUserId(c)
 	if err != nil {
 		h.logger.Error("User not found in context", slog.String("error", err.Error()))
@@ -16,7 +16,7 @@ func (h *MainHandler) createList(c *gin.Context) {
 	}
 
 	var input entity.Todos
-	if err := c.BindJSON(&input); err != nil {
+	if err = c.BindJSON(&input); err != nil {
 		h.logger.Error("error in converting JSON", slog.String("error", err.Error()))
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -39,7 +39,7 @@ func (h *MainHandler) createList(c *gin.Context) {
 	h.logger.Info("todo successfully created", slog.Any("response", response))
 }
 
-func (h *MainHandler) getAllLists(c *gin.Context) {
+func (h *Handler) getAllLists(c *gin.Context) {
 	id, err := getUserId(c)
 	if err != nil {
 		h.logger.Error("User not found in context", slog.String("error", err.Error()))
@@ -60,7 +60,7 @@ func (h *MainHandler) getAllLists(c *gin.Context) {
 	h.logger.Info("successfully getting all records for user", slog.Any("response", response))
 }
 
-func (h *MainHandler) getListById(c *gin.Context) {
+func (h *Handler) getListById(c *gin.Context) {
 	id, err := getUserId(c)
 	if err != nil {
 		h.logger.Error("User not found in context", slog.String("error", err.Error()))
@@ -85,7 +85,7 @@ func (h *MainHandler) getListById(c *gin.Context) {
 	h.logger.Info("successfully getting all records for user", slog.Any("response", list))
 }
 
-func (h *MainHandler) updateList(c *gin.Context) {
+func (h *Handler) updateList(c *gin.Context) {
 	id, err := getUserId(c)
 	if err != nil {
 		h.logger.Error("User not found in context", slog.String("error", err.Error()))
@@ -100,7 +100,7 @@ func (h *MainHandler) updateList(c *gin.Context) {
 	}
 
 	var input entity.UpdateListInput
-	if err := c.BindJSON(&input); err != nil {
+	if err = c.BindJSON(&input); err != nil {
 		h.logger.Error("error in converting JSON", slog.String("error", err.Error()))
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -118,7 +118,7 @@ func (h *MainHandler) updateList(c *gin.Context) {
 	h.logger.Info("successfully update todo", slog.String("Status", "ok"))
 }
 
-func (h *MainHandler) deleteList(c *gin.Context) {
+func (h *Handler) deleteList(c *gin.Context) {
 	id, err := getUserId(c)
 	if err != nil {
 		h.logger.Error("User not found in context", slog.String("error", err.Error()))

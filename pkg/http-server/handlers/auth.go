@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (h *MainHandler) signUp(c *gin.Context) {
+func (h *Handler) signUp(c *gin.Context) {
 	var input entity.User
 
 	if err := c.BindJSON(&input); err != nil {
@@ -38,7 +38,7 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func (h *MainHandler) signIn(c *gin.Context) {
+func (h *Handler) signIn(c *gin.Context) {
 	var input signInInput
 
 	if err := c.BindJSON(&input); err != nil {
