@@ -7,16 +7,16 @@ import (
 	"log/slog"
 )
 
-type MainHandler struct {
+type Handler struct {
 	services *service.Service
 	logger   *slog.Logger
 }
 
-func NewMainHandler(services *service.Service, logger *slog.Logger) *MainHandler {
-	return &MainHandler{services: services, logger: logger}
+func NewMainHandler(services *service.Service, logger *slog.Logger) *Handler {
+	return &Handler{services: services, logger: logger}
 }
 
-func (h *MainHandler) InitRoutes() *gin.Engine {
+func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
 	auth := router.Group("/auth")
