@@ -7,3 +7,5 @@ commands_for_database.txt
 cmd/todo-app/todoapp-api.zip
 cmd/todo-app/todoapp-api
 cmd/todo-app/
+backup.sql
+todoapp.zip
