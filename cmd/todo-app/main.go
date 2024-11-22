@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/joho/godotenv"
 	"github.com/nhassl3/todo-app/pkg/config"
 	"github.com/nhassl3/todo-app/pkg/http-server/handlers"
@@ -9,6 +10,7 @@ import (
 	"github.com/nhassl3/todo-app/pkg/repository"
 	"github.com/nhassl3/todo-app/pkg/service"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -22,7 +24,7 @@ const (
 
 func main() {
 	// load dot environment
-	if err := godotenv.Load("../../.env"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		slog.Error("error loading .env variables", slog.String("error", err.Error()))
 	}
 
@@ -49,7 +51,7 @@ func main() {
 	// set up http server on localhost:8082
 	server := new(Server)
 	go func() {
-		if err := server.Run(cfg, handler.InitRoutes()); err != nil {
+		if err = server.Run(cfg, handler.InitRoutes()); err != nil && !errors.Is(http.ErrServerClosed, err) {
 			log.Error("error starting server", slog.String("error", err.Error()))
 		}
 	}()
