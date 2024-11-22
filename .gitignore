@@ -1,4 +1,9 @@
 .idea
 .env
 cmd/todo-app/go_build_github_com_nhassl3_todo_app_cmd_todo_app
+cmd/todo-app/go_build_github_com_nhassl3_todo_app_cmd_todo_app_arm
+cmd/todo-app/go_build_github_com_nhassl3_todo_app_cmd_todo_app_windows.exe
 commands_for_database.txt
+cmd/todo-app/todoapp-api.zip
+cmd/todo-app/todoapp-api
+cmd/todo-app/
