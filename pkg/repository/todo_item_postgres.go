@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/nhassl3/todo-app/entity"
+	"strings"
 )
 
 type TodoItemPostgres struct {
@@ -13,31 +15,87 @@ func NewTodoItemPostgres(db *sqlx.DB) *TodoItemPostgres {
 	return &TodoItemPostgres{db: db}
 }
 
-func (r *TodoItemPostgres) CreateItem(userId int, list entity.TodoItem) (int, error) {
-	
+func (r *TodoItemPostgres) CreateItem(listId int, item entity.TodoItem) (int, error) {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	var itemId int
+	createItemQuery := fmt.Sprintf("INSERT INTO %s (title, description) values ($1, $2) RETURNING id", todoItemsTable)
+	if err = tx.QueryRow(createItemQuery, item.Title, item.Description).Scan(&itemId); err != nil {
+		return Rollback[int](tx, err)
+	}
+
+	createListItemsQuery := fmt.Sprintf("INSERT INTO %s (list_id, item_id) VALUES ($1, $2)", listsItemsTable)
+	_, err = tx.Exec(createListItemsQuery, listId, itemId)
+	if err != nil {
+		return Rollback[int](tx, err)
+	}
+
+	return itemId, tx.Commit()
 }
 
-func (r *TodoItemPostgres) GetAllItems(userId int) ([]entity.TodoItem, error) {
-	var lists []entity.TodoItem
-	return lists, nil
+func (r *TodoItemPostgres) GetAllItems(userId, listId int) ([]entity.TodoItem, error) {
+	var items []entity.TodoItem
+	query := fmt.Sprintf(`SELECT ti.id, ti.title, ti.description, ti.done FROM %s ti INNER JOIN %s li on li.item_id = ti.id
+INNER JOIN %s ul on ul.list_id=li.list_id WHERE li.list_id=$1 AND ul.user_id=$2`,
+		todoItemsTable, listsItemsTable, usersListsTable)
+	if err := r.db.Select(&items, query, listId, userId); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-func (r *TodoItemPostgres) GetListByIdItem(userId, id int) (entity.TodoItem, error) {
-	var list entity.TodoItem
-	return list, nil
+func (r *TodoItemPostgres) GetByIdItem(userId, itemId int) (entity.TodoItem, error) {
+	var item entity.TodoItem
+	query := fmt.Sprintf(`SELECT ti.id, ti.title, ti.description, ti.done FROM %s ti INNER JOIN %s li on li.item_id = ti.id
+INNER JOIN %s ul on ul.list_id=li.list_id WHERE ti.id=$1 AND ul.user_id=$2`,
+		todoItemsTable, listsItemsTable, usersListsTable)
+	if err := r.db.Get(&item, query, itemId, userId); err != nil {
+		return item, err
+	}
+	return item, nil
 }
 
-func (r *TodoItemPostgres) DeleteItem(userId, id int) (int, error) {
-	var idTodo int
-	return idTodo, nil
+func (r *TodoItemPostgres) DeleteItem(userId, id int) error {
+	query := fmt.Sprintf(`DELETE FROM %s ti USING %s li, %s ul
+       WHERE ti.id=li.item_id AND li.list_id=ul.list_id AND
+       ul.user_id=$1 AND ti.id=$2`,
+		todoItemsTable, listsItemsTable, usersListsTable)
+	_, err := r.db.Exec(query, userId, id)
+	return err
 }
 
-func (r *TodoItemPostgres) UpdateItem(userId, listId int, input entity.UpdateItemInput) error {
+func (r *TodoItemPostgres) UpdateItem(userId, itemId int, input entity.UpdateItemInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
 
-	_, _, _ = setValues, args, argId // TODO: PLUG
+	if input.TitleItem != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
+		args = append(args, *input.TitleItem)
+		argId++
+	}
 
-	return nil
+	if input.DescriptionItem != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.DescriptionItem)
+		argId++
+	}
+
+	if input.Done != nil {
+		setValues = append(setValues, fmt.Sprintf("done=$%d", argId))
+		args = append(args, *input.Done)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+	query := fmt.Sprintf(`UPDATE %s ti SET %s FROM %s li, %s ul
+                    WHERE ti.id=li.item_id AND li.list_id=ul.list_id AND ul.user_id=$%d AND ti.id=$%d`,
+		todoItemsTable, setQuery, listsItemsTable, usersListsTable, argId, argId+1)
+	args = append(args, userId, itemId)
+
+	_, err := r.db.Exec(query, args...)
+	return err
 }

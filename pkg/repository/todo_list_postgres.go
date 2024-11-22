@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/nhassl3/todo-app/entity"
@@ -89,13 +88,4 @@ func (r *TodoListPostgres) Update(userId, listId int, input entity.UpdateListInp
 
 	_, err := r.db.Exec(query, args...)
 	return err
-}
-
-func Rollback[T any](tx *sql.Tx, accessErr error) (T, error) {
-	err := tx.Rollback()
-	fmt.Printf("%s: %s\n", accessErr.Error(), err)
-	if err != nil {
-		return *new(T), err
-	}
-	return *new(T), accessErr
 }

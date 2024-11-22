@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -32,4 +33,12 @@ func NewPostgresDB(cfg *config.Config) (*sqlx.DB, error) {
 	}
 
 	return db, err
+}
+
+func Rollback[T any](tx *sql.Tx, accessErr error) (T, error) {
+	err := tx.Rollback()
+	if err != nil {
+		return *new(T), err
+	}
+	return *new(T), accessErr
 }
