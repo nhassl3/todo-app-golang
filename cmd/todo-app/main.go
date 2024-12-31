@@ -3,17 +3,18 @@ package main
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/joho/godotenv"
 	"github.com/nhassl3/todo-app/pkg/config"
 	"github.com/nhassl3/todo-app/pkg/http-server/handlers"
 	"github.com/nhassl3/todo-app/pkg/logger/handlers/slogpretty"
 	"github.com/nhassl3/todo-app/pkg/repository"
 	"github.com/nhassl3/todo-app/pkg/service"
-	"log/slog"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 const (
@@ -24,7 +25,7 @@ const (
 
 func main() {
 	// load dot environment
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("../../.env"); err != nil {
 		slog.Error("error loading .env variables", slog.String("error", err.Error()))
 	}
 
@@ -49,24 +50,27 @@ func main() {
 	handler := handlers.NewHandler(services, log)
 
 	// set up http server on localhost:8082
+	// method of gracefully shutdown the server
+	// this method provide full-finish sql transactions
+	// and other running business logic or processes
 	server := new(Server)
 	go func() {
 		if err = server.Run(cfg, handler.InitRoutes()); err != nil && !errors.Is(http.ErrServerClosed, err) {
-			log.Error("error starting server", slog.String("error", err.Error()))
+			log.Error("error starting server 🚨", slog.String("error", err.Error()))
 		}
 	}()
-	log.Info("Server started", slog.String("host", cfg.HttpServer.Address))
+	log.Info("Server started 🎉", slog.String("host", cfg.HttpServer.Address))
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Info("Server is down", slog.String("Status", "ok"))
+	log.Info("Server is down 🚧", slog.String("Status", "ok"))
 	if err = server.Shutdown(context.Background()); err != nil {
-		log.Error("error shutting down server", slog.String("error", err.Error()))
+		log.Error("error shutting down server 🚧", slog.String("error", err.Error()))
 	}
 	if err = db.Close(); err != nil {
-		log.Error("error closing database", slog.String("error", err.Error()))
+		log.Error("error closing database 🚧", slog.String("error", err.Error()))
 	}
 }
 
