@@ -55,7 +55,7 @@ func main() {
 	// and other running business logic or processes
 	server := new(Server)
 	go func() {
-		if err = server.Run(cfg, handler.InitRoutes()); err != nil && !errors.Is(http.ErrServerClosed, err) {
+		if err = server.Run(cfg, handler.InitRoutes()); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error("error starting server 🚨", slog.String("error", err.Error()))
 		}
 	}()

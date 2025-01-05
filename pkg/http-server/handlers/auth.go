@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/nhassl3/todo-app/entity"
 	"log/slog"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/nhassl3/todo-app/entity"
 )
 
 func (h *Handler) signUp(c *gin.Context) {

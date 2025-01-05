@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/nhassl3/todo-app/pkg/config"
 	"net/http"
+
+	"github.com/nhassl3/todo-app/pkg/config"
 )
 
 type Server struct {

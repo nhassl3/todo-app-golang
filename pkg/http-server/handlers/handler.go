@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 	"github.com/nhassl3/todo-app/pkg/service"
 	sloggin "github.com/samber/slog-gin"
-	"log/slog"
 )
 
 type Handler struct {

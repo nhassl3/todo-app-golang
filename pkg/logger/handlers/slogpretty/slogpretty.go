@@ -3,11 +3,12 @@ package slogpretty
 import (
 	"context"
 	"encoding/json"
-	"github.com/fatih/color"
 	"io"
 	stdLog "log"
 	"log/slog"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type PrettyHandlerOptions struct {
@@ -15,7 +16,6 @@ type PrettyHandlerOptions struct {
 }
 
 type PrettyHandler struct {
-	opts PrettyHandlerOptions
 	slog.Handler
 	l     *stdLog.Logger
 	attrs []slog.Attr

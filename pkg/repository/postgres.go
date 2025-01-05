@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/nhassl3/todo-app/pkg/config"
